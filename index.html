@@ -432,64 +432,137 @@
         </div>
 
         <!-- New Project Modal -->
-        <div id="newProjectModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Novo Projeto</h3>
-                    <button class="close-btn" onclick="closeModal('newProject')">&times;</button>
+        <div id="newProjectModal" class="modal modern-modal">
+            <div class="modal-content project-modal">
+                <div class="modal-header project-header">
+                    <div class="header-content">
+                        <div class="header-icon">
+                            <i class="fas fa-folder-plus"></i>
+                        </div>
+                        <div class="header-text">
+                            <h2>Novo Projeto</h2>
+                            <p>Crie um novo projeto para gerenciar tarefas e cronogramas</p>
+                        </div>
+                    </div>
+                    <button class="close-btn modern-close" onclick="closeModal('newProject')">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <form id="newProjectForm">
-                    <div class="form-group">
-                        <label for="sigaNumber">Número SIGA</label>
-                        <input type="text" id="sigaNumber" required>
+                
+                <form id="newProjectForm" class="modern-form">
+                    <div class="form-grid">
+                        <div class="form-group enhanced">
+                            <label for="sigaNumber">
+                                <i class="fas fa-hashtag"></i>
+                                Número SIGA
+                            </label>
+                            <input type="text" id="sigaNumber" required class="modern-input" placeholder="Ex: SIT.2025.000001">
+                            <span class="field-help">Código único de identificação do projeto</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="title">
+                                <i class="fas fa-edit"></i>
+                                Título
+                            </label>
+                            <input type="text" id="title" required class="modern-input" placeholder="Digite o título do projeto...">
+                            <span class="field-help">Nome descritivo do projeto</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="requester">
+                                <i class="fas fa-user"></i>
+                                Solicitante
+                            </label>
+                            <input type="text" id="requester" required class="modern-input" placeholder="Nome do solicitante...">
+                            <span class="field-help">Pessoa ou área que solicita o projeto</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="type">
+                                <i class="fas fa-tags"></i>
+                                Tipo
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="type" required class="modern-select">
+                                    <option value="Sistemas">Sistemas</option>
+                                    <option value="Infra">Infra</option>
+                                    <option value="Networking">Networking</option>
+                                    <option value="Servidores">Servidores</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                            <span class="field-help">Categoria do projeto</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="priority">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Prioridade
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="priority" required class="modern-select">
+                                    <option value="low">Baixa</option>
+                                    <option value="medium">Média</option>
+                                    <option value="high">Alta</option>
+                                    <option value="critical">Crítica</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                            <span class="field-help">Nível de urgência do projeto</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="startDate">
+                                <i class="fas fa-calendar-alt"></i>
+                                Data de Início
+                            </label>
+                            <input type="date" id="startDate" required class="modern-input">
+                            <span class="field-help">Quando o projeto deve começar</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="endDate">
+                                <i class="fas fa-calendar-check"></i>
+                                Data de Fim
+                            </label>
+                            <input type="date" id="endDate" required class="modern-input">
+                            <span class="field-help">Prazo para conclusão do projeto</span>
+                        </div>
+                        
+                        <div class="form-group enhanced full-width">
+                            <label for="description">
+                                <i class="fas fa-align-left"></i>
+                                Descrição
+                            </label>
+                            <textarea id="description" rows="3" required class="modern-textarea" placeholder="Descreva os objetivos e detalhes do projeto..."></textarea>
+                            <span class="field-help">Informações detalhadas sobre o escopo do projeto</span>
+                        </div>
+                        
+                        <div class="form-group enhanced checkbox-enhanced">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="isRfp" class="modern-checkbox">
+                                <span class="checkmark">
+                                    <i class="fas fa-check"></i>
+                                </span>
+                                <span class="checkbox-text">
+                                    <i class="fas fa-file-contract"></i>
+                                    É um RFP?
+                                </span>
+                            </label>
+                            <span class="field-help">Marque se este projeto é uma Solicitação de Proposta (RFP)</span>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="title">Título</label>
-                        <input type="text" id="title" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="requester">Solicitante</label>
-                        <input type="text" id="requester" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="type">Tipo</label>
-                        <select id="type" required>
-                            <option value="Sistemas">Sistemas</option>
-                            <option value="Infra">Infra</option>
-                            <option value="Networking">Networking</option>
-                            <option value="Servidores">Servidores</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="priority">Prioridade</label>
-                        <select id="priority" required>
-                            <option value="low">Baixa</option>
-                            <option value="medium">Média</option>
-                            <option value="high">Alta</option>
-                            <option value="critical">Crítica</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="startDate">Data de Início</label>
-                        <input type="date" id="startDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="endDate">Data de Fim</label>
-                        <input type="date" id="endDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Descrição</label>
-                        <textarea id="description" rows="3" required></textarea>
-                    </div>
-                    <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" id="isRfp">
-                            É um RFP?
-                        </label>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('newProject')">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Criar Projeto</button>
+                    
+                    <div class="form-actions modern-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('newProject')">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Criar Projeto
+                        </button>
                     </div>
                 </form>
             </div>
