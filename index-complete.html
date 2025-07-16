@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gerenciamento de Projetos</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <h1 class="logo">
+                    <i class="fas fa-project-diagram"></i>
+                    Sistema de Projetos
+                </h1>
+                <nav class="nav">
+                    <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
+                    <a href="#" class="nav-link" data-page="projects">Projetos</a>
+                    <a href="#" class="nav-link" data-page="gantt">Cronograma</a>
+                    <a href="#" class="nav-link" data-page="meetings">Atas</a>
+                    <a href="#" class="nav-link" data-page="servicenow">ServiceNow</a>
+                    <a href="#" class="nav-link" data-page="reports">Relatórios</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="container">
+                <!-- Dashboard Page -->
+                <div id="dashboard" class="page active">
+                    <!-- Filters and Controls -->
+                    <div class="page-controls">
+                        <div class="filters">
+                            <select id="dashboardTypeFilter" class="filter-select">
+                                <option value="all">Todos os Tipos</option>
+                                <option value="RFP">RFP</option>
+                                <option value="Normal">Projeto Normal</option>
+                            </select>
+                            
+                            <div class="search-container">
+                                <input type="text" id="dashboardSearch" placeholder="Buscar projetos..." class="search-input">
+                                <i class="fas fa-search search-icon"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="actions">
+                            <button class="btn btn-outline" onclick="openModal('importProjects')">
+                                <i class="fas fa-upload"></i>
+                                Importar
+                            </button>
+                            <button class="btn btn-outline" onclick="exportProjectsCSV()">
+                                <i class="fas fa-download"></i>
+                                Exportar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Kanban Board -->
+                    <div class="kanban-board" id="kanbanBoard">
+                        <div class="kanban-column" data-status="todo">
+                            <div class="kanban-header">
+                                <h3>A Fazer</h3>
+                                <span class="kanban-count" id="todoCount">0</span>
+                            </div>
+                            <div class="kanban-content" id="todoColumn"></div>
+                        </div>
+                        
+                        <div class="kanban-column" data-status="in_progress">
+                            <div class="kanban-header">
+                                <h3>Em Andamento</h3>
+                                <span class="kanban-count" id="inProgressCount">0</span>
+                            </div>
+                            <div class="kanban-content" id="inProgressColumn"></div>
+                        </div>
+                        
+                        <div class="kanban-column" data-status="completed">
+                            <div class="kanban-header">
+                                <h3>Concluído</h3>
+                                <span class="kanban-count" id="completedCount">0</span>
+                            </div>
+                            <div class="kanban-content" id="completedColumn"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects Page -->
+                <div id="projects" class="page">
+                    <div class="page-header">
+                        <h2>Projetos</h2>
+                        <button class="btn btn-primary" onclick="openModal('newProject')">
+                            <i class="fas fa-plus"></i>
+                            Novo Projeto
+                        </button>
+                    </div>
+                    
+                    <div class="filters">
+                        <input type="text" id="projectSearch" placeholder="Buscar projetos..." class="search-input">
+                        <select id="typeFilter" class="filter-select">
+                            <option value="">Todos os Tipos</option>
+                            <option value="Infra">Infra</option>
+                            <option value="Sistemas">Sistemas</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Servidores">Servidores</option>
+                        </select>
+                        <select id="priorityFilter" class="filter-select">
+                            <option value="">Todas as Prioridades</option>
+                            <option value="low">Baixa</option>
+                            <option value="medium">Média</option>
+                            <option value="high">Alta</option>
+                            <option value="critical">Crítica</option>
+                        </select>
+                    </div>
+                    
+                    <div class="projects-grid" id="projectsGrid"></div>
+                </div>
+
+                <!-- Gantt Schedule Page -->
+                <div id="gantt" class="page">
+                    <div class="page-header">
+                        <h2>Cronograma de Tarefas</h2>
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="openModal('newTask')">
+                                <i class="fas fa-plus"></i>
+                                Nova Tarefa
+                            </button>
+                            <button class="btn btn-outline" onclick="exportGantt()">
+                                <i class="fas fa-download"></i>
+                                Exportar PDF
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="gantt-filters">
+                        <select id="ganttProjectFilter" class="filter-select">
+                            <option value="">Todos os Projetos</option>
+                        </select>
+                        <input type="text" id="ganttSearch" placeholder="Buscar tarefas..." class="search-input" onkeyup="filterGanttTasks()">
+                    </div>
+                    
+                    <div class="gantt-container">
+                        <div class="gantt-table">
+                            <div class="gantt-header">
+                                <div class="gantt-cell">Tarefa</div>
+                                <div class="gantt-cell">Projeto</div>
+                                <div class="gantt-cell">Responsável</div>
+                                <div class="gantt-cell">Duração</div>
+                                <div class="gantt-cell">Status</div>
+                                <div class="gantt-cell">Ações</div>
+                            </div>
+                            <div class="gantt-body" id="ganttTasksList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Meeting Minutes Page -->
+                <div id="meetings" class="page">
+                    <div class="page-header">
+                        <h2>Atas de Reunião</h2>
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="openModal('newMeeting')">
+                                <i class="fas fa-plus"></i>
+                                Nova Ata
+                            </button>
+                            <button class="btn btn-outline" onclick="exportMeetings()">
+                                <i class="fas fa-download"></i>
+                                Exportar PDF
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="meetings-filters">
+                        <select id="meetingProjectFilter" class="filter-select" onchange="filterMeetings()">
+                            <option value="">Todos os Projetos</option>
+                        </select>
+                        <input type="text" id="meetingSearch" placeholder="Buscar atas..." class="search-input" onkeyup="filterMeetings()">
+                    </div>
+                    
+                    <div class="meetings-grid" id="meetingsGrid"></div>
+                </div>
+
+                <!-- ServiceNow Page -->
+                <div id="servicenow" class="page">
+                    <div class="page-header">
+                        <h2>Chamados ServiceNow</h2>
+                        <button class="btn btn-primary" onclick="openModal('newTicket')">
+                            <i class="fas fa-plus"></i>
+                            Novo Chamado
+                        </button>
+                    </div>
+                    
+                    <div class="servicenow-filters">
+                        <select id="ticketProjectFilter" class="filter-select" onchange="filterTickets()">
+                            <option value="">Todos os Projetos</option>
+                        </select>
+                        <input type="text" id="ticketSearch" placeholder="Buscar chamados..." class="search-input" onkeyup="filterTickets()">
+                    </div>
+                    
+                    <div class="servicenow-container" id="serviceNowTickets"></div>
+                </div>
+
+                <!-- Reports Page -->
+                <div id="reports" class="page">
+                    <div class="page-header">
+                        <h2>Relatórios</h2>
+                    </div>
+                    
+                    <div class="reports-grid">
+                        <div class="report-card">
+                            <div class="report-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="report-content">
+                                <h3>Relatório de Projetos</h3>
+                                <p>Visão geral de todos os projetos cadastrados</p>
+                                <button class="btn btn-primary" onclick="generateProjectReport()">Gerar PDF</button>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card">
+                            <div class="report-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="report-content">
+                                <h3>Relatório de Horas</h3>
+                                <p>Controle de horas trabalhadas por projeto</p>
+                                <button class="btn btn-primary" onclick="generateHoursReport()">Gerar PDF</button>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card">
+                            <div class="report-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="report-content">
+                                <h3>Relatório de Reuniões</h3>
+                                <p>Compilado de todas as atas de reunião</p>
+                                <button class="btn btn-primary" onclick="generateMeetingsReport()">Gerar PDF</button>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card">
+                            <div class="report-icon">
+                                <i class="fas fa-ticket-alt"></i>
+                            </div>
+                            <div class="report-content">
+                                <h3>Relatório de Tickets</h3>
+                                <p>Status dos chamados ServiceNow</p>
+                                <button class="btn btn-primary" onclick="generateTicketsReport()">Gerar PDF</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h3>Projetos por Tipo</h3>
+                            <canvas id="projectTypeChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h3>Projetos por Prioridade</h3>
+                            <canvas id="priorityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Project Detail Sidebar -->
+        <div class="sidebar" id="projectSidebar">
+            <div class="sidebar-header">
+                <h3 id="sidebarTitle">Detalhes do Projeto</h3>
+                <button class="close-btn" onclick="closeSidebar()">&times;</button>
+            </div>
+            <div class="sidebar-content" id="sidebarContent">
+                <!-- Project details will be populated here -->
+            </div>
+        </div>
+
+        <!-- New Project Modal -->
+        <div id="newProjectModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Novo Projeto</h3>
+                    <button class="close-btn" onclick="closeModal('newProject')">&times;</button>
+                </div>
+                <form id="newProjectForm">
+                    <div class="form-group">
+                        <label for="sigaNumber">Número SIGA</label>
+                        <input type="text" id="sigaNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="title">Título</label>
+                        <input type="text" id="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="requester">Solicitante</label>
+                        <input type="text" id="requester" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Tipo</label>
+                        <select id="type" required>
+                            <option value="Sistemas">Sistemas</option>
+                            <option value="Infra">Infra</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Servidores">Servidores</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Prioridade</label>
+                        <select id="priority" required>
+                            <option value="low">Baixa</option>
+                            <option value="medium">Média</option>
+                            <option value="high">Alta</option>
+                            <option value="critical">Crítica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">Data de Início</label>
+                        <input type="date" id="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">Data de Fim</label>
+                        <input type="date" id="endDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Descrição</label>
+                        <textarea id="description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="isRfp">
+                            É um RFP?
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('newProject')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Criar Projeto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Project Modal -->
+        <div id="editProjectModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Editar Projeto</h3>
+                    <button class="close-btn" onclick="closeModal('editProject')">&times;</button>
+                </div>
+                <form id="editProjectForm">
+                    <input type="hidden" id="editProjectId">
+                    <div class="form-group">
+                        <label for="editSigaNumber">Número SIGA</label>
+                        <input type="text" id="editSigaNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTitle">Título</label>
+                        <input type="text" id="editTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRequester">Solicitante</label>
+                        <input type="text" id="editRequester" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editType">Tipo</label>
+                        <select id="editType" required>
+                            <option value="Sistemas">Sistemas</option>
+                            <option value="Infra">Infra</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Servidores">Servidores</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPriority">Prioridade</label>
+                        <select id="editPriority" required>
+                            <option value="low">Baixa</option>
+                            <option value="medium">Média</option>
+                            <option value="high">Alta</option>
+                            <option value="critical">Crítica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStartDate">Data de Início</label>
+                        <input type="date" id="editStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEndDate">Data de Fim</label>
+                        <input type="date" id="editEndDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDescription">Descrição</label>
+                        <textarea id="editDescription" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="editIsRfp">
+                            É um RFP?
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('editProject')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Import Projects Modal -->
+        <div id="importProjectsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Importar Projetos</h3>
+                    <button class="close-btn" onclick="closeModal('importProjects')">&times;</button>
+                </div>
+                <div class="import-container">
+                    <div class="file-drop-zone" id="fileDropZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Arraste e solte um arquivo Excel (.xlsx) ou CSV aqui, ou clique para selecionar</p>
+                        <input type="file" id="fileInput" accept=".xlsx,.csv" style="display: none;">
+                        <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                            Selecionar Arquivo
+                        </button>
+                    </div>
+                    <div class="import-actions">
+                        <button type="button" class="btn btn-outline" onclick="downloadTemplate()">
+                            <i class="fas fa-download"></i>
+                            Baixar Modelo
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('importProjects')">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Task Modal -->
+        <div id="newTaskModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Nova Tarefa</h3>
+                    <button class="close-btn" onclick="closeModal('newTask')">&times;</button>
+                </div>
+                <form id="newTaskForm">
+                    <div class="form-group">
+                        <label for="taskProject">Projeto</label>
+                        <select id="taskProject" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskTitle">Título da Tarefa</label>
+                        <input type="text" id="taskTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDescription">Descrição</label>
+                        <textarea id="taskDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskAssigned">Responsável</label>
+                        <input type="text" id="taskAssigned" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskStartDate">Data de Início</label>
+                        <input type="date" id="taskStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskEndDate">Data de Fim</label>
+                        <input type="date" id="taskEndDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskPriority">Prioridade</label>
+                        <select id="taskPriority" required>
+                            <option value="low">Baixa</option>
+                            <option value="medium">Média</option>
+                            <option value="high">Alta</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('newTask')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Criar Tarefa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- New Meeting Modal -->
+        <div id="newMeetingModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Nova Ata de Reunião</h3>
+                    <button class="close-btn" onclick="closeModal('newMeeting')">&times;</button>
+                </div>
+                <form id="newMeetingForm">
+                    <div class="form-group">
+                        <label for="meetingProject">Projeto (Opcional)</label>
+                        <select id="meetingProject">
+                            <option value="">Reunião Geral</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="meetingTitle">Título da Reunião</label>
+                        <input type="text" id="meetingTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="meetingDate">Data</label>
+                        <input type="date" id="meetingDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="meetingParticipants">Participantes</label>
+                        <div class="participant-input">
+                            <input type="text" id="participantInput" placeholder="Digite o nome e pressione Enter">
+                            <button type="button" onclick="addParticipant()">Adicionar</button>
+                        </div>
+                        <div id="participantsList" class="participants-list"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="meetingAgenda">Pauta</label>
+                        <textarea id="meetingAgenda" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="meetingDiscussions">Discussões</label>
+                        <textarea id="meetingDiscussions" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="meetingDecisions">Decisões</label>
+                        <textarea id="meetingDecisions" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="meetingResponsibles">Responsáveis</label>
+                        <div class="responsible-input">
+                            <input type="text" id="responsibleInput" placeholder="Digite o nome e pressione Enter">
+                            <button type="button" onclick="addResponsible()">Adicionar</button>
+                        </div>
+                        <div id="responsiblesList" class="responsibles-list"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('newMeeting')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Criar Ata</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- New Ticket Modal -->
+        <div id="newTicketModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Novo Chamado ServiceNow</h3>
+                    <button class="close-btn" onclick="closeModal('newTicket')">&times;</button>
+                </div>
+                <form id="newTicketForm">
+                    <div class="form-group">
+                        <label for="ticketProject">Projeto</label>
+                        <select id="ticketProject" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticketNumber">Número do Chamado</label>
+                        <input type="text" id="ticketNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticketTitle">Título</label>
+                        <input type="text" id="ticketTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticketDescription">Descrição</label>
+                        <textarea id="ticketDescription" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticketCreatedDate">Data de Criação</label>
+                        <input type="datetime-local" id="ticketCreatedDate" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('newTicket')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Criar Chamado</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Time Entry Modal -->
+        <div id="timeEntryModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Registrar Horas</h3>
+                    <button class="close-btn" onclick="closeModal('timeEntry')">&times;</button>
+                </div>
+                <form id="timeEntryForm">
+                    <input type="hidden" id="timeProjectId">
+                    <input type="hidden" id="timeEntryDate">
+                    <div class="form-group">
+                        <label for="timeHours">Horas Trabalhadas</label>
+                        <input type="number" id="timeHours" min="0.5" max="24" step="0.5" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="timeDescription">Descrição das Atividades</label>
+                        <textarea id="timeDescription" rows="3" required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('timeEntry')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

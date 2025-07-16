@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projetos - Sistema de Gerenciamento de Projetos</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <a href="#" class="logo">
+                    <i class="fas fa-rocket"></i>
+                    Projetos
+                </a>
+                <nav class="nav">
+                    <a href="#" class="nav-link active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                    <a href="#" class="nav-link" data-page="projects">
+                        <i class="fas fa-folder-open"></i>
+                        Projetos
+                    </a>
+                    <a href="#" class="nav-link" data-page="gantt">
+                        <i class="fas fa-chart-gantt"></i>
+                        Cronograma
+                    </a>
+                    <a href="#" class="nav-link" data-page="meetings">
+                        <i class="fas fa-users"></i>
+                        Atas
+                    </a>
+                    <a href="#" class="nav-link" data-page="servicenow">
+                        <i class="fas fa-ticket-alt"></i>
+                        ServiceNow
+                    </a>
+                    <a href="#" class="nav-link" data-page="reports">
+                        <i class="fas fa-chart-line"></i>
+                        Relatórios
+                    </a>
+                    <a href="#" class="nav-link" data-page="archived">
+                        <i class="fas fa-archive"></i>
+                        Arquivados
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="container">
+                <!-- Dashboard Page -->
+                <div id="dashboard" class="page active">
+                    <div class="page-header">
+                        <h1 class="page-title">Dashboard</h1>
+                        <p class="page-subtitle">Visão geral dos projetos e suas atividades em tempo real</p>
+                    </div>
+                    <!-- Filters and Controls -->
+                    <div class="search-filter-bar">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" id="dashboardSearch" placeholder="🔍 Buscar projetos..." class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <select id="dashboardTypeFilter" class="form-control">
+                                    <option value="all">Todos os Tipos</option>
+                                    <option value="RFP">RFP</option>
+                                    <option value="Normal">Projeto Normal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="openModal('newProject')">
+                                    <i class="fas fa-plus"></i>
+                                    Novo Projeto
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-secondary" onclick="openModal('importProjects')">
+                                        <i class="fas fa-upload"></i>
+                                        Importar
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="exportProjectsCSV()">
+                                        <i class="fas fa-download"></i>
+                                        Exportar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kanban Board -->
+                    <div class="kanban-board" id="kanbanBoard">
+                        <div class="kanban-column" data-status="todo">
+                            <div class="kanban-header">
+                                <div class="kanban-title">
+                                    <span>📋 A Fazer</span>
+                                    <span class="kanban-count" id="todoCount">0</span>
+                                </div>
+                            </div>
+                            <div class="kanban-content" id="todoColumn"></div>
+                        </div>
+                        
+                        <div class="kanban-column" data-status="in_progress">
+                            <div class="kanban-header">
+                                <div class="kanban-title">
+                                    <span>⚡ Em Andamento</span>
+                                    <span class="kanban-count" id="inProgressCount">0</span>
+                                </div>
+                            </div>
+                            <div class="kanban-content" id="inProgressColumn"></div>
+                        </div>
+                        
+                        <div class="kanban-column" data-status="completed">
+                            <div class="kanban-header">
+                                <div class="kanban-title">
+                                    <span>✅ Concluído</span>
+                                    <span class="kanban-count" id="completedCount">0</span>
+                                </div>
+                            </div>
+                            <div class="kanban-content" id="completedColumn"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects Page -->
+                <div id="projects" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Projetos</h1>
+                        <p class="page-subtitle">Gerencie todos os seus projetos em um só lugar</p>
+                    </div>
+                    
+                    <div class="search-filter-bar">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" id="projectSearch" placeholder="🔍 Buscar projetos..." class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <select id="typeFilter" class="form-control">
+                                    <option value="">Todos os Tipos</option>
+                                    <option value="Infra">Infra</option>
+                                    <option value="Sistemas">Sistemas</option>
+                                    <option value="Networking">Networking</option>
+                                    <option value="Servidores">Servidores</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <select id="priorityFilter" class="form-control">
+                                    <option value="">Todas as Prioridades</option>
+                                    <option value="low">Baixa</option>
+                                    <option value="medium">Média</option>
+                                    <option value="high">Alta</option>
+                                    <option value="critical">Crítica</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="openModal('newProject')">
+                                    <i class="fas fa-plus"></i>
+                                    Novo Projeto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                    
+                    <div class="projects-grid" id="projectsGrid"></div>
+                </div>
+
+                <!-- Gantt Schedule Page -->
+                <div id="gantt" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Cronograma de Tarefas</h1>
+                        <p class="page-subtitle">Visualize e gerencie o cronograma das suas tarefas</p>
+                    </div>
+                    
+                    <div class="search-filter-bar">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" id="ganttSearch" placeholder="🔍 Buscar tarefas..." class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <select id="ganttProjectFilter" class="form-control">
+                                    <option value="">Todos os Projetos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="openModal('newTask')">
+                                    <i class="fas fa-plus"></i>
+                                    Nova Tarefa
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-secondary" onclick="exportGantt()">
+                                        <i class="fas fa-file-pdf"></i>
+                                        PDF
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="exportGanttExcel()">
+                                        <i class="fas fa-file-excel"></i>
+                                        Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="ganttTasksList"></div>
+                </div>
+
+                <!-- Meeting Minutes Page -->
+                <div id="meetings" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Atas de Reunião</h1>
+                        <p class="page-subtitle">Gerencie as atas e documentos das suas reuniões</p>
+                    </div>
+                    
+                    <div class="search-filter-bar">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" id="meetingSearch" placeholder="🔍 Buscar atas..." class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <select id="meetingProjectFilter" class="form-control">
+                                    <option value="">Todos os Projetos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="openModal('newMeeting')">
+                                    <i class="fas fa-plus"></i>
+                                    Nova Ata
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-secondary" onclick="exportMeetingsPDF()">
+                                        <i class="fas fa-file-pdf"></i>
+                                        PDF
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="exportMeetingsExcel()">
+                                        <i class="fas fa-file-excel"></i>
+                                        Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="meetings-grid" id="meetingsGrid"></div>
+                </div>
+
+                <!-- ServiceNow Page -->
+                <div id="servicenow" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Chamados ServiceNow</h1>
+                        <p class="page-subtitle">Acompanhe todos os chamados abertos vinculados aos projetos</p>
+                    </div>
+                    
+                    <div class="search-filter-bar">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" id="ticketSearch" placeholder="🔍 Buscar chamados..." class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <select id="ticketProjectFilter" class="form-control">
+                                    <option value="">Todos os Projetos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="openModal('newTicket')">
+                                    <i class="fas fa-plus"></i>
+                                    Novo Chamado
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-secondary" onclick="exportTicketsPDF()">
+                                        <i class="fas fa-file-pdf"></i>
+                                        PDF
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="exportTicketsExcel()">
+                                        <i class="fas fa-file-excel"></i>
+                                        Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="serviceNowTickets"></div>
+                </div>
+
+                <!-- Reports Page -->
+                <div id="reports" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Relatórios</h1>
+                        <p class="page-subtitle">Análise e estatísticas detalhadas dos seus projetos</p>
+                    </div>
+                    
+                    <div class="search-filter-bar">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="exportProjectsExcel()">
+                                    <i class="fas fa-file-excel"></i>
+                                    Exportar Projetos (Excel)
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="exportProjectsCSV()">
+                                    <i class="fas fa-file-csv"></i>
+                                    Exportar Projetos (CSV)
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-secondary" onclick="generateProjectReport()">
+                                    <i class="fas fa-file-pdf"></i>
+                                    Relatório Geral (PDF)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="reports-grid">
+                        <div class="chart-container">
+                            <h3>Projetos por Tipo</h3>
+                            <canvas id="projectTypeChart" width="400" height="300"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>Projetos por Prioridade</h3>
+                            <canvas id="priorityChart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalProjects">0</h3>
+                                <p>Total de Projetos</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="criticalProjects">0</h3>
+                                <p>Projetos Críticos</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="completedProjects">0</h3>
+                                <p>Projetos Concluídos</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalHours">0</h3>
+                                <p>Total de Horas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Archived Projects Page -->
+                <div id="archived" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Projetos Arquivados</h1>
+                        <p class="page-subtitle">Projetos concluídos organizados por mês de conclusão</p>
+                    </div>
+                    
+                    <div class="search-filter-bar">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" id="archivedSearch" placeholder="🔍 Buscar projetos arquivados..." class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <select id="monthFilter" class="form-control">
+                                    <option value="">Todos os Meses</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <select id="yearFilter" class="form-control">
+                                    <option value="">Todos os Anos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="testArchivedSystem()">
+                                    <i class="fas fa-bug"></i>
+                                    Teste Sistema
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-secondary" onclick="exportArchivedExcel()">
+                                    <i class="fas fa-file-excel"></i>
+                                    Exportar Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="archivedContainer"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Project Detail Sidebar -->
+        <div class="sidebar" id="projectSidebar">
+            <div class="sidebar-header">
+                <h3 id="sidebarTitle">Detalhes do Projeto</h3>
+                <button class="close-btn" onclick="closeSidebar()">&times;</button>
+            </div>
+            <div class="sidebar-content" id="sidebarContent">
+                <!-- Project details will be populated here -->
+            </div>
+        </div>
+
+        <!-- New Project Modal -->
+        <div id="newProjectModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Novo Projeto</h3>
+                    <button class="close-btn" onclick="closeModal('newProject')">&times;</button>
+                </div>
+                <form id="newProjectForm">
+                    <div class="form-group">
+                        <label for="sigaNumber">Número SIGA</label>
+                        <input type="text" id="sigaNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="title">Título</label>
+                        <input type="text" id="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="requester">Solicitante</label>
+                        <input type="text" id="requester" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Tipo</label>
+                        <select id="type" required>
+                            <option value="Sistemas">Sistemas</option>
+                            <option value="Infra">Infra</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Servidores">Servidores</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Prioridade</label>
+                        <select id="priority" required>
+                            <option value="low">Baixa</option>
+                            <option value="medium">Média</option>
+                            <option value="high">Alta</option>
+                            <option value="critical">Crítica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">Data de Início</label>
+                        <input type="date" id="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">Data de Fim</label>
+                        <input type="date" id="endDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Descrição</label>
+                        <textarea id="description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="isRfp">
+                            É um RFP?
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('newProject')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Criar Projeto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Project Modal -->
+        <div id="editProjectModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Editar Projeto</h3>
+                    <button class="close-btn" onclick="closeModal('editProject')">&times;</button>
+                </div>
+                <form id="editProjectForm">
+                    <input type="hidden" id="editProjectId">
+                    <div class="form-group">
+                        <label for="editSigaNumber">Número SIGA</label>
+                        <input type="text" id="editSigaNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTitle">Título</label>
+                        <input type="text" id="editTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRequester">Solicitante</label>
+                        <input type="text" id="editRequester" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editType">Tipo</label>
+                        <select id="editType" required>
+                            <option value="Sistemas">Sistemas</option>
+                            <option value="Infra">Infra</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Servidores">Servidores</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPriority">Prioridade</label>
+                        <select id="editPriority" required>
+                            <option value="low">Baixa</option>
+                            <option value="medium">Média</option>
+                            <option value="high">Alta</option>
+                            <option value="critical">Crítica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStartDate">Data de Início</label>
+                        <input type="date" id="editStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEndDate">Data de Fim</label>
+                        <input type="date" id="editEndDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDescription">Descrição</label>
+                        <textarea id="editDescription" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="editIsRfp">
+                            É um RFP?
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('editProject')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Import Projects Modal -->
+        <div id="importProjectsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Importar Projetos</h3>
+                    <button class="close-btn" onclick="closeModal('importProjects')">&times;</button>
+                </div>
+                <div class="import-container">
+                    <div class="file-drop-zone" id="fileDropZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Arraste e solte um arquivo Excel (.xlsx) ou CSV aqui, ou clique para selecionar</p>
+                        <input type="file" id="fileInput" accept=".xlsx,.csv" style="display: none;">
+                        <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                            Selecionar Arquivo
+                        </button>
+                    </div>
+                    <div class="import-actions">
+                        <button type="button" class="btn btn-outline" onclick="downloadTemplate()">
+                            <i class="fas fa-download"></i>
+                            Baixar Modelo
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('importProjects')">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Task Modal -->
+        <div id="newTaskModal" class="modal modern-modal">
+            <div class="modal-content task-modal">
+                <div class="modal-header task-header">
+                    <div class="header-content">
+                        <div class="header-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="header-text">
+                            <h2>Nova Tarefa</h2>
+                            <p>Crie uma nova tarefa no cronograma do projeto</p>
+                        </div>
+                    </div>
+                    <button class="close-btn modern-close" onclick="closeModal('newTask')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="newTaskForm" class="modern-form">
+                    <div class="form-grid">
+                        <div class="form-group enhanced">
+                            <label for="taskProject">
+                                <i class="fas fa-project-diagram"></i>
+                                Projeto
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="taskProject" required class="modern-select">
+                                    <option value="">Selecione um projeto...</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                            <span class="field-help">Escolha o projeto ao qual esta tarefa pertence</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="taskTitle">
+                                <i class="fas fa-edit"></i>
+                                Título da Tarefa
+                            </label>
+                            <input type="text" id="taskTitle" required class="modern-input" placeholder="Digite o título da tarefa...">
+                            <span class="field-help">Nome descritivo para identificar a tarefa</span>
+                        </div>
+                        
+                        <div class="form-group enhanced full-width">
+                            <label for="taskDescription">
+                                <i class="fas fa-align-left"></i>
+                                Descrição
+                            </label>
+                            <textarea id="taskDescription" rows="3" class="modern-textarea" placeholder="Descreva os detalhes da tarefa..."></textarea>
+                            <span class="field-help">Detalhes adicionais sobre o que deve ser feito</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="taskAssigned">
+                                <i class="fas fa-user"></i>
+                                Responsável
+                            </label>
+                            <input type="text" id="taskAssigned" required class="modern-input" placeholder="Nome do responsável...">
+                            <span class="field-help">Pessoa responsável por executar a tarefa</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="taskPriority">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Prioridade
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="taskPriority" required class="modern-select">
+                                    <option value="low">Baixa</option>
+                                    <option value="medium">Média</option>
+                                    <option value="high">Alta</option>
+                                    <option value="critical">Crítica</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                            <span class="field-help">Nível de urgência da tarefa</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="taskStartDate">
+                                <i class="fas fa-calendar-alt"></i>
+                                Data de Início
+                            </label>
+                            <input type="date" id="taskStartDate" required class="modern-input">
+                            <span class="field-help">Quando a tarefa deve começar</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="taskEndDate">
+                                <i class="fas fa-calendar-check"></i>
+                                Data de Fim
+                            </label>
+                            <input type="date" id="taskEndDate" required class="modern-input">
+                            <span class="field-help">Prazo para conclusão da tarefa</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions modern-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('newTask')">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Criar Tarefa
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Task Modal -->
+        <div id="editTaskModal" class="modal modern-modal">
+            <div class="modal-content task-modal">
+                <div class="modal-header task-header">
+                    <div class="header-content">
+                        <div class="header-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="header-text">
+                            <h2>Editar Tarefa</h2>
+                            <p>Modifique os detalhes da tarefa selecionada</p>
+                        </div>
+                    </div>
+                    <button class="close-btn modern-close" onclick="closeModal('editTask')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="editTaskForm" class="modern-form">
+                    <div class="form-grid">
+                        <div class="form-group enhanced">
+                            <label for="editTaskProject">
+                                <i class="fas fa-project-diagram"></i>
+                                Projeto
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="editTaskProject" required class="modern-select">
+                                    <option value="">Selecione um projeto...</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                            <span class="field-help">Escolha o projeto ao qual esta tarefa pertence</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="editTaskTitle">
+                                <i class="fas fa-edit"></i>
+                                Título da Tarefa
+                            </label>
+                            <input type="text" id="editTaskTitle" required class="modern-input" placeholder="Digite o título da tarefa...">
+                            <span class="field-help">Nome descritivo para identificar a tarefa</span>
+                        </div>
+                        
+                        <div class="form-group enhanced full-width">
+                            <label for="editTaskDescription">
+                                <i class="fas fa-align-left"></i>
+                                Descrição
+                            </label>
+                            <textarea id="editTaskDescription" rows="3" class="modern-textarea" placeholder="Descreva os detalhes da tarefa..."></textarea>
+                            <span class="field-help">Detalhes adicionais sobre o que deve ser feito</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="editTaskAssigned">
+                                <i class="fas fa-user"></i>
+                                Responsável
+                            </label>
+                            <input type="text" id="editTaskAssigned" required class="modern-input" placeholder="Nome do responsável...">
+                            <span class="field-help">Pessoa responsável por executar a tarefa</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="editTaskPriority">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Prioridade
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="editTaskPriority" required class="modern-select">
+                                    <option value="low">Baixa</option>
+                                    <option value="medium">Média</option>
+                                    <option value="high">Alta</option>
+                                    <option value="critical">Crítica</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                            <span class="field-help">Nível de urgência da tarefa</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="editTaskStartDate">
+                                <i class="fas fa-calendar-alt"></i>
+                                Data de Início
+                            </label>
+                            <input type="date" id="editTaskStartDate" required class="modern-input">
+                            <span class="field-help">Quando a tarefa deve começar</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="editTaskEndDate">
+                                <i class="fas fa-calendar-check"></i>
+                                Data de Fim
+                            </label>
+                            <input type="date" id="editTaskEndDate" required class="modern-input">
+                            <span class="field-help">Prazo para conclusão da tarefa</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="editTaskStatus">
+                                <i class="fas fa-tasks"></i>
+                                Status
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="editTaskStatus" required class="modern-select">
+                                    <option value="pending">Pendente</option>
+                                    <option value="in_progress">Em Andamento</option>
+                                    <option value="completed">Concluída</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                            <span class="field-help">Status atual da tarefa</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions modern-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('editTask')">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- New Meeting Modal -->
+        <div id="newMeetingModal" class="modal modern-modal">
+            <div class="modal-content meeting-modal">
+                <div class="modal-header meeting-header">
+                    <div class="header-content">
+                        <div class="header-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="header-text">
+                            <h2>Nova Ata de Reunião</h2>
+                            <p>Documente discussões, decisões e próximos passos</p>
+                        </div>
+                    </div>
+                    <button class="close-btn modern-close" onclick="closeModal('newMeeting')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="newMeetingForm" class="modern-form" onsubmit="submitNewMeeting(event)">
+                    <div class="form-grid">
+                        <div class="form-group enhanced">
+                            <label for="meetingProject">
+                                <i class="fas fa-project-diagram"></i>
+                                Projeto (Opcional)
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="meetingProject" class="modern-select">
+                                    <option value="">Reunião Geral</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                            <span class="field-help">Vincule a reunião a um projeto específico ou deixe como reunião geral</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="meetingDate">
+                                <i class="fas fa-calendar-alt"></i>
+                                Data da Reunião
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="date" id="meetingDate" required class="modern-input">
+                                <div class="input-border"></div>
+                            </div>
+                            <span class="field-help">Data em que a reunião foi realizada</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group enhanced full-width">
+                        <label for="meetingTitle">
+                            <i class="fas fa-heading"></i>
+                            Título da Reunião
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="text" id="meetingTitle" required class="modern-input" 
+                                   placeholder="Ex: Reunião de Planejamento Sprint 2025.01">
+                            <div class="input-border"></div>
+                        </div>
+                        <span class="field-help">Nome da reunião ou assunto principal</span>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3><i class="fas fa-users"></i> Participantes</h3>
+                        <div class="participants-manager">
+                            <div class="input-group">
+                                <div class="input-wrapper">
+                                    <input type="text" id="participantInput" class="modern-input" 
+                                           placeholder="Digite o nome e pressione Enter">
+                                    <div class="input-border"></div>
+                                </div>
+                                <button type="button" class="btn btn-secondary modern-btn-add" onclick="addParticipant()">
+                                    <i class="fas fa-plus"></i>
+                                    Adicionar
+                                </button>
+                            </div>
+                            <div id="participantsList" class="tags-list"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group enhanced full-width">
+                        <label for="meetingAgenda">
+                            <i class="fas fa-list-ul"></i>
+                            Pauta da Reunião
+                        </label>
+                        <div class="textarea-wrapper">
+                            <textarea id="meetingAgenda" rows="4" required class="modern-textarea" 
+                                      placeholder="• Ponto 1: Revisão do projeto anterior&#10;• Ponto 2: Planejamento das próximas atividades&#10;• Ponto 3: Definição de responsabilidades"></textarea>
+                            <div class="input-border"></div>
+                        </div>
+                        <span class="field-help">Liste os tópicos que foram discutidos na reunião</span>
+                    </div>
+                    
+                    <div class="form-group enhanced full-width">
+                        <label for="meetingDiscussions">
+                            <i class="fas fa-comments"></i>
+                            Discussões e Pontos Abordados
+                        </label>
+                        <div class="textarea-wrapper">
+                            <textarea id="meetingDiscussions" rows="5" required class="modern-textarea" 
+                                      placeholder="Detalhe as principais discussões, opiniões levantadas, problemas identificados e soluções propostas..."></textarea>
+                            <div class="input-border"></div>
+                        </div>
+                        <span class="field-help">Resumo das conversas e pontos importantes discutidos</span>
+                    </div>
+                    
+                    <div class="form-group enhanced full-width">
+                        <label for="meetingDecisions">
+                            <i class="fas fa-gavel"></i>
+                            Decisões Tomadas
+                        </label>
+                        <div class="textarea-wrapper">
+                            <textarea id="meetingDecisions" rows="4" required class="modern-textarea" 
+                                      placeholder="• Decisão 1: Implementar nova funcionalidade até 30/01&#10;• Decisão 2: Reunião de follow-up na próxima semana&#10;• Decisão 3: Aprovação do orçamento proposto"></textarea>
+                            <div class="input-border"></div>
+                        </div>
+                        <span class="field-help">Liste as decisões concretas que foram tomadas</span>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3><i class="fas fa-user-check"></i> Responsáveis e Ações</h3>
+                        <div class="responsibles-manager">
+                            <div class="input-group">
+                                <div class="input-wrapper">
+                                    <input type="text" id="responsibleInput" class="modern-input" 
+                                           placeholder="Nome do responsável e ação (pressione Enter)">
+                                    <div class="input-border"></div>
+                                </div>
+                                <button type="button" class="btn btn-secondary modern-btn-add" onclick="addResponsible()">
+                                    <i class="fas fa-plus"></i>
+                                    Adicionar
+                                </button>
+                            </div>
+                            <div id="responsiblesList" class="tags-list"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-outline modern-btn-outline" onclick="closeModal('newMeeting')">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary modern-btn-primary">
+                            <i class="fas fa-file-alt"></i>
+                            Criar Ata
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- New Ticket Modal -->
+        <div id="newTicketModal" class="modal modern-modal">
+            <div class="modal-content servicenow-modal">
+                <div class="modal-header servicenow-header">
+                    <div class="header-content">
+                        <div class="header-icon">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <div class="header-text">
+                            <h2>Novo Chamado ServiceNow</h2>
+                            <p>Registre um novo chamado técnico no sistema</p>
+                        </div>
+                    </div>
+                    <button class="close-btn modern-close" onclick="closeModal('newTicket')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="newTicketForm" class="modern-form" onsubmit="submitNewTicket(event)">
+                    <div class="form-grid">
+                        <div class="form-group enhanced">
+                            <label for="ticketProject">
+                                <i class="fas fa-project-diagram"></i>
+                                Projeto Relacionado
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="ticketProject" required class="modern-select">
+                                    <option value="">Selecione um projeto...</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                            <span class="field-help">Escolha o projeto ao qual este chamado está relacionado</span>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="ticketNumber">
+                                <i class="fas fa-hashtag"></i>
+                                Número do Chamado
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="text" id="ticketNumber" required class="modern-input" 
+                                       placeholder="Ex: INC0012345">
+                                <div class="input-border"></div>
+                            </div>
+                            <span class="field-help">Número de identificação do chamado no ServiceNow</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group enhanced full-width">
+                        <label for="ticketTitle">
+                            <i class="fas fa-heading"></i>
+                            Título do Chamado
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="text" id="ticketTitle" required class="modern-input" 
+                                   placeholder="Descreva brevemente o problema ou solicitação">
+                            <div class="input-border"></div>
+                        </div>
+                        <span class="field-help">Título claro e objetivo do chamado</span>
+                    </div>
+                    
+                    <div class="form-group enhanced full-width">
+                        <label for="ticketDescription">
+                            <i class="fas fa-align-left"></i>
+                            Descrição Detalhada
+                        </label>
+                        <div class="textarea-wrapper">
+                            <textarea id="ticketDescription" rows="5" required class="modern-textarea" 
+                                      placeholder="Descreva em detalhes o problema, sintomas observados, passos para reproduzir e informações relevantes..."></textarea>
+                            <div class="input-border"></div>
+                        </div>
+                        <span class="field-help">Forneça o máximo de detalhes possível para facilitar o atendimento</span>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group enhanced">
+                            <label for="ticketPriority">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Prioridade
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="ticketPriority" required class="modern-select">
+                                    <option value="low">Baixa - Sem impacto operacional</option>
+                                    <option value="medium" selected>Média - Impacto limitado</option>
+                                    <option value="high">Alta - Impacto significativo</option>
+                                    <option value="critical">Crítica - Sistema fora do ar</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="ticketCreatedDate">
+                                <i class="fas fa-calendar-alt"></i>
+                                Data de Criação
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="datetime-local" id="ticketCreatedDate" required class="modern-input">
+                                <div class="input-border"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-outline modern-btn-outline" onclick="closeModal('newTicket')">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary modern-btn-primary">
+                            <i class="fas fa-plus-circle"></i>
+                            Criar Chamado
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Ticket Modal -->
+        <div id="editTicketModal" class="modal modern-modal">
+            <div class="modal-content servicenow-modal">
+                <div class="modal-header servicenow-header">
+                    <div class="header-content">
+                        <div class="header-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="header-text">
+                            <h2>Editar Chamado ServiceNow</h2>
+                            <p>Atualize as informações do chamado técnico</p>
+                        </div>
+                    </div>
+                    <button class="close-btn modern-close" onclick="closeModal('editTicket')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="editTicketForm" class="modern-form" onsubmit="submitEditTicket(event)">
+                    <input type="hidden" id="editTicketId">
+                    
+                    <div class="form-grid">
+                        <div class="form-group enhanced">
+                            <label for="editTicketProject">
+                                <i class="fas fa-project-diagram"></i>
+                                Projeto Relacionado
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="editTicketProject" required class="modern-select">
+                                    <option value="">Selecione um projeto...</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="editTicketNumber">
+                                <i class="fas fa-hashtag"></i>
+                                Número do Chamado
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="text" id="editTicketNumber" required class="modern-input">
+                                <div class="input-border"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group enhanced full-width">
+                        <label for="editTicketTitle">
+                            <i class="fas fa-heading"></i>
+                            Título do Chamado
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="text" id="editTicketTitle" required class="modern-input">
+                            <div class="input-border"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group enhanced full-width">
+                        <label for="editTicketDescription">
+                            <i class="fas fa-align-left"></i>
+                            Descrição Detalhada
+                        </label>
+                        <div class="textarea-wrapper">
+                            <textarea id="editTicketDescription" rows="5" required class="modern-textarea"></textarea>
+                            <div class="input-border"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group enhanced">
+                            <label for="editTicketPriority">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Prioridade
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="editTicketPriority" required class="modern-select">
+                                    <option value="low">Baixa - Sem impacto operacional</option>
+                                    <option value="medium">Média - Impacto limitado</option>
+                                    <option value="high">Alta - Impacto significativo</option>
+                                    <option value="critical">Crítica - Sistema fora do ar</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group enhanced">
+                            <label for="editTicketStatus">
+                                <i class="fas fa-flag"></i>
+                                Status
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="editTicketStatus" required class="modern-select">
+                                    <option value="open">Aberto</option>
+                                    <option value="in_progress">Em Andamento</option>
+                                    <option value="closed">Fechado</option>
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-outline modern-btn-outline" onclick="closeModal('editTicket')">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary modern-btn-primary">
+                            <i class="fas fa-save"></i>
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Time Entry Modal -->
+        <div id="timeEntryModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Registrar Horas</h3>
+                    <button class="close-btn" onclick="closeModal('timeEntry')">&times;</button>
+                </div>
+                <form id="timeEntryForm" onsubmit="submitTimeEntry(event)">
+                    <div class="form-group">
+                        <label for="timeProjectId">Projeto:</label>
+                        <select id="timeProjectId" required class="form-control">
+                            <option value="">Selecione um projeto</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="timeDate">Data:</label>
+                        <input type="date" id="timeDate" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="timeHours">Horas Trabalhadas</label>
+                        <input type="number" id="timeHours" min="0.5" max="24" step="0.5" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="timeDescription">Descrição das Atividades</label>
+                        <textarea id="timeDescription" rows="3" required class="form-control"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('timeEntry')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Project Modal -->
+        <div id="editProjectModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Editar Projeto</h2>
+                    <span class="close" onclick="closeModal('editProject')">&times;</span>
+                </div>
+                <form id="editProjectForm" onsubmit="submitEditProject(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editSigaNumber">Número SIGA:</label>
+                            <input type="text" id="editSigaNumber" required class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="editType">Tipo:</label>
+                            <select id="editType" required class="form-control">
+                                <option value="Sistemas">Sistemas</option>
+                                <option value="Infra">Infra</option>
+                                <option value="Networking">Networking</option>
+                                <option value="Servidores">Servidores</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTitle">Título:</label>
+                        <input type="text" id="editTitle" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="editRequester">Solicitante:</label>
+                        <input type="text" id="editRequester" required class="form-control">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editPriority">Prioridade:</label>
+                            <select id="editPriority" required class="form-control">
+                                <option value="low">Baixa</option>
+                                <option value="medium">Média</option>
+                                <option value="high">Alta</option>
+                                <option value="critical">Crítica</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editIsRFP">É um RFP?</label>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="editIsRFP" class="checkbox">
+                                <label for="editIsRFP" class="checkbox-label">Sim</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editStartDate">Data de Início:</label>
+                            <input type="date" id="editStartDate" required class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="editEndDate">Data de Fim:</label>
+                            <input type="date" id="editEndDate" required class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDescription">Descrição:</label>
+                        <textarea id="editDescription" required class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('editProject')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
