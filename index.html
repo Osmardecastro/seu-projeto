@@ -87,6 +87,10 @@
                                         <i class="fas fa-download"></i>
                                         Exportar
                                     </button>
+                                    <button class="types-manager-btn" onclick="manageProjectTypes()">
+                                        <i class="fas fa-cogs"></i>
+                                        Gerenciar Tipos
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -320,18 +324,73 @@
                                     Relatório Geral (PDF)
                                 </button>
                             </div>
+                            <div class="form-group">
+                                <button class="btn btn-secondary" onclick="openChartCustomizer()">
+                                    <i class="fas fa-palette"></i>
+                                    Personalizar Gráficos
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
                     <div class="reports-grid">
                         <div class="chart-container">
-                            <h3>Projetos por Tipo</h3>
+                            <div class="chart-header">
+                                <h3>Projetos por Tipo</h3>
+                                <div class="chart-controls">
+                                    <select id="typeChartType" onchange="updateTypeChart()" class="chart-control">
+                                        <option value="bar">Barras</option>
+                                        <option value="doughnut">Rosca</option>
+                                        <option value="pie">Pizza</option>
+                                        <option value="polarArea">Área Polar</option>
+                                    </select>
+                                </div>
+                            </div>
                             <canvas id="projectTypeChart" width="400" height="300"></canvas>
                         </div>
                         
                         <div class="chart-container">
-                            <h3>Projetos por Prioridade</h3>
+                            <div class="chart-header">
+                                <h3>Projetos por Prioridade</h3>
+                                <div class="chart-controls">
+                                    <select id="priorityChartType" onchange="updatePriorityChart()" class="chart-control">
+                                        <option value="polarArea">Área Polar</option>
+                                        <option value="doughnut">Rosca</option>
+                                        <option value="pie">Pizza</option>
+                                        <option value="bar">Barras</option>
+                                    </select>
+                                </div>
+                            </div>
                             <canvas id="priorityChart" width="400" height="300"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3>Status dos Projetos</h3>
+                                <div class="chart-controls">
+                                    <select id="statusChartType" onchange="updateStatusChart()" class="chart-control">
+                                        <option value="doughnut">Rosca</option>
+                                        <option value="pie">Pizza</option>
+                                        <option value="bar">Barras</option>
+                                        <option value="line">Linha</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <canvas id="statusChart" width="400" height="300"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3>Distribuição de Horas</h3>
+                                <div class="chart-controls">
+                                    <select id="hoursChartType" onchange="updateHoursChart()" class="chart-control">
+                                        <option value="bar">Barras</option>
+                                        <option value="line">Linha</option>
+                                        <option value="radar">Radar</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <canvas id="hoursChart" width="400" height="300"></canvas>
                         </div>
                     </div>
                     
@@ -1384,11 +1443,15 @@
                 </form>
             </div>
         </div>
+        
+        <!-- Chart Customizer Modal Placeholder -->
+        <div id="chartCustomizerContainer"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="script.js"></script>
+    <script src="script-fix.js"></script>
 </body>
 </html>

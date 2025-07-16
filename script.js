@@ -27,12 +27,41 @@ const statusLabels = {
     completed: 'Concluído'
 };
 
+// Project Types - Default and Custom
+let projectTypes = [
+    { id: 'Sistemas', name: 'Sistemas', icon: 'fas fa-code', isDefault: true },
+    { id: 'Infra', name: 'Infra', icon: 'fas fa-server', isDefault: true },
+    { id: 'Networking', name: 'Networking', icon: 'fas fa-network-wired', isDefault: true },
+    { id: 'Servidores', name: 'Servidores', icon: 'fas fa-hdd', isDefault: true }
+];
+
+// Load custom types from localStorage
+function loadCustomTypes() {
+    const saved = localStorage.getItem('customProjectTypes');
+    if (saved) {
+        const customTypes = JSON.parse(saved);
+        projectTypes = [...projectTypes.filter(t => t.isDefault), ...customTypes];
+    }
+}
+
+// Save custom types to localStorage
+function saveCustomTypes() {
+    const customTypes = projectTypes.filter(t => !t.isDefault);
+    localStorage.setItem('customProjectTypes', JSON.stringify(customTypes));
+}
+
 const typeLabels = {
     Sistemas: 'Sistemas',
     Infra: 'Infra',
     Networking: 'Networking',
     Servidores: 'Servidores'
 };
+
+// Initialize custom types on load
+function initializeSystem() {
+    loadCustomTypes();
+    updateProjectTypeSelects();
+}
 
 // Sample data - exactly like React version
 function loadSampleData() {
@@ -765,13 +794,320 @@ function getPriorityClass(priority) {
 }
 
 function getTypeIcon(type) {
-    const icons = {
-        Sistemas: 'fas fa-code',
-        Infra: 'fas fa-server',
-        Networking: 'fas fa-network-wired',
-        Servidores: 'fas fa-hdd'
+    const typeObj = projectTypes.find(t => t.id === type);
+    return typeObj ? typeObj.icon : 'fas fa-project-diagram';
+}
+
+// Update project type selects
+function updateProjectTypeSelects() {
+    const selects = ['type', 'editType', 'typeFilter', 'taskProject', 'editTaskProject'];
+    
+    selects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (select) {
+            // Save current value
+            const currentValue = select.value;
+            
+            // Clear options
+            select.innerHTML = '';
+            
+            // Add default option for filters
+            if (selectId.includes('Filter')) {
+                select.innerHTML = '<option value="">Todos os Tipos</option>';
+            }
+            
+            // Add project options for task selects
+            if (selectId.includes('taskProject')) {
+                select.innerHTML = '<option value="">Selecione um projeto...</option>';
+                projects.forEach(project => {
+                    const option = document.createElement('option');
+                    option.value = project.id;
+                    option.textContent = `${project.sigaNumber} - ${project.title}`;
+                    select.appendChild(option);
+                });
+                return;
+            }
+            
+            // Add project types
+            projectTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.id;
+                option.textContent = type.name;
+                select.appendChild(option);
+            });
+            
+            // Restore value if it still exists
+            if (currentValue && [...select.options].some(opt => opt.value === currentValue)) {
+                select.value = currentValue;
+            }
+        }
+    });
+}
+
+// Add new project type
+function addProjectType() {
+    showAddTypeModal();
+}
+
+// Show beautiful modal for adding new project type
+function showAddTypeModal() {
+    const iconOptions = [
+        { icon: 'fas fa-laptop-code', name: 'Desenvolvimento', color: '#3b82f6' },
+        { icon: 'fas fa-database', name: 'Banco de Dados', color: '#10b981' },
+        { icon: 'fas fa-cloud', name: 'Cloud/Nuvem', color: '#06b6d4' },
+        { icon: 'fas fa-shield-alt', name: 'Segurança', color: '#ef4444' },
+        { icon: 'fas fa-mobile-alt', name: 'Mobile', color: '#8b5cf6' },
+        { icon: 'fas fa-globe', name: 'Web/Internet', color: '#0ea5e9' },
+        { icon: 'fas fa-cogs', name: 'Configuração', color: '#6b7280' },
+        { icon: 'fas fa-chart-line', name: 'Analytics', color: '#f59e0b' },
+        { icon: 'fas fa-users', name: 'Recursos Humanos', color: '#ec4899' },
+        { icon: 'fas fa-file-alt', name: 'Documentação', color: '#84cc16' },
+        { icon: 'fas fa-tools', name: 'Ferramentas', color: '#f97316' },
+        { icon: 'fas fa-brain', name: 'Inteligência Artificial', color: '#a855f7' }
+    ];
+    
+    let selectedIcon = iconOptions[0];
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content add-type-modal">
+            <div class="modal-header add-type-header">
+                <div class="header-content">
+                    <div class="header-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="header-text">
+                        <h2>Novo Tipo de Projeto</h2>
+                        <p>Crie um novo tipo personalizado para seus projetos</p>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            
+            <div class="add-type-content">
+                <div class="form-section">
+                    <label class="form-label">
+                        <i class="fas fa-tag"></i>
+                        Nome do Tipo
+                    </label>
+                    <input type="text" id="newTypeName" class="form-input" 
+                           placeholder="Ex: Desenvolvimento Mobile, Cloud Computing..." 
+                           maxlength="30">
+                    <small class="form-help">Digite um nome descritivo para o novo tipo de projeto</small>
+                </div>
+                
+                <div class="form-section">
+                    <label class="form-label">
+                        <i class="fas fa-palette"></i>
+                        Escolha um Ícone
+                    </label>
+                    <div class="icon-grid" id="iconGrid">
+                        ${iconOptions.map((option, index) => `
+                            <div class="icon-option ${index === 0 ? 'selected' : ''}" 
+                                 data-icon="${option.icon}" 
+                                 data-index="${index}"
+                                 style="--icon-color: ${option.color}">
+                                <i class="${option.icon}"></i>
+                                <span>${option.name}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="form-section preview-section">
+                    <label class="form-label">
+                        <i class="fas fa-eye"></i>
+                        Pré-visualização
+                    </label>
+                    <div class="type-preview" id="typePreview">
+                        <i class="${selectedIcon.icon}" style="color: ${selectedIcon.color}"></i>
+                        <span id="previewName">Novo Tipo</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" onclick="createNewProjectType()">
+                    <i class="fas fa-plus"></i>
+                    Criar Tipo
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    const nameInput = modal.querySelector('#newTypeName');
+    const iconGrid = modal.querySelector('#iconGrid');
+    const preview = modal.querySelector('#typePreview');
+    const previewName = modal.querySelector('#previewName');
+    
+    // Update preview when typing
+    nameInput.addEventListener('input', function() {
+        const name = this.value.trim() || 'Novo Tipo';
+        previewName.textContent = name;
+    });
+    
+    // Handle icon selection
+    iconGrid.addEventListener('click', function(e) {
+        const iconOption = e.target.closest('.icon-option');
+        if (!iconOption) return;
+        
+        // Remove previous selection
+        iconGrid.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+        
+        // Add selection to clicked option
+        iconOption.classList.add('selected');
+        
+        // Update selected icon
+        const index = parseInt(iconOption.dataset.index);
+        selectedIcon = iconOptions[index];
+        
+        // Update preview
+        const previewIcon = preview.querySelector('i');
+        previewIcon.className = selectedIcon.icon;
+        previewIcon.style.color = selectedIcon.color;
+    });
+    
+    // Focus on name input
+    setTimeout(() => nameInput.focus(), 100);
+    
+    // Store selected icon globally
+    window.currentSelectedIcon = selectedIcon;
+}
+
+// Create the new project type from modal
+function createNewProjectType() {
+    const nameInput = document.getElementById('newTypeName');
+    const name = nameInput.value.trim();
+    
+    if (!name) {
+        nameInput.focus();
+        showNotification('Por favor, digite um nome para o tipo de projeto', 'error');
+        return;
+    }
+    
+    // Check if type already exists
+    if (projectTypes.some(t => t.name.toLowerCase() === name.toLowerCase())) {
+        nameInput.focus();
+        showNotification('Este tipo de projeto já existe!', 'error');
+        return;
+    }
+    
+    // Create new type
+    const newType = {
+        id: name.replace(/\s+/g, '_'),
+        name: name,
+        icon: window.currentSelectedIcon.icon,
+        isDefault: false
     };
-    return icons[type] || 'fas fa-project-diagram';
+    
+    projectTypes.push(newType);
+    saveCustomTypes();
+    updateProjectTypeSelects();
+    
+    // Close modal
+    document.querySelector('.add-type-modal').closest('.modal').remove();
+    
+    showNotification(`Tipo "${name}" criado com sucesso!`, 'success');
+    
+    // Refresh the manage types modal if it's open
+    const manageModal = document.querySelector('.types-modal');
+    if (manageModal) {
+        manageModal.remove();
+        manageProjectTypes();
+    }
+}
+
+// Remove custom project type
+function removeProjectType(typeId) {
+    const type = projectTypes.find(t => t.id === typeId);
+    if (!type) return;
+    
+    if (type.isDefault) {
+        alert('Não é possível remover tipos padrão do sistema!');
+        return;
+    }
+    
+    // Check if type is being used
+    const inUse = projects.some(p => p.type === typeId);
+    if (inUse) {
+        if (!confirm(`O tipo "${type.name}" está sendo usado em projetos existentes. Tem certeza que deseja removê-lo?`)) {
+            return;
+        }
+    }
+    
+    projectTypes = projectTypes.filter(t => t.id !== typeId);
+    saveCustomTypes();
+    updateProjectTypeSelects();
+    
+    showNotification(`Tipo "${type.name}" removido com sucesso!`, 'success');
+}
+
+// Show project types management
+function manageProjectTypes() {
+    const customTypes = projectTypes.filter(t => !t.isDefault);
+    
+    let html = `
+        <div class="types-manager">
+            <h3>Gerenciar Tipos de Projeto</h3>
+            <div class="types-section">
+                <h4>Tipos Padrão</h4>
+                <div class="types-list">
+                    ${projectTypes.filter(t => t.isDefault).map(type => `
+                        <div class="type-item default">
+                            <i class="${type.icon}"></i>
+                            <span>${type.name}</span>
+                            <span class="type-badge">Padrão</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <div class="types-section">
+                <h4>Tipos Personalizados</h4>
+                <div class="types-list">
+                    ${customTypes.length === 0 ? 
+                        '<div class="no-custom-types">Nenhum tipo personalizado criado</div>' :
+                        customTypes.map(type => `
+                            <div class="type-item custom">
+                                <i class="${type.icon}"></i>
+                                <span>${type.name}</span>
+                                <button onclick="removeProjectType('${type.id}')" class="btn-remove">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `).join('')
+                    }
+                </div>
+                <button onclick="addProjectType()" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Adicionar Tipo
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Show in a modal or alert
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content types-modal">
+            <div class="modal-header">
+                <h3>Gerenciar Tipos de Projeto</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            ${html}
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
 }
 
 function formatDate(dateString) {
@@ -1762,91 +2098,22 @@ function renderReports() {
     
     // Render charts after DOM is updated
     setTimeout(() => {
-        renderStatusChart();
-        renderTypeChart();
-        renderPriorityChart();
+        updateStatusChart();
+        updateTypeChart();
+        updatePriorityChart();
         renderTimelineChart();
-        renderHoursDistributionChart();
+        updateHoursChart();
     }, 100);
 }
 
 function renderProjectTypeChart() {
-    const canvas = document.getElementById('projectTypeChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    
-    const typeCounts = {};
-    projects.forEach(project => {
-        typeCounts[project.type] = (typeCounts[project.type] || 0) + 1;
-    });
-    
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(typeCounts),
-            datasets: [{
-                data: Object.values(typeCounts),
-                backgroundColor: [
-                    '#3b82f6',
-                    '#10b981',
-                    '#f59e0b',
-                    '#8b5cf6'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
+    // Use the new updateTypeChart function
+    updateTypeChart();
 }
 
 function renderPriorityChart() {
-    const canvas = document.getElementById('priorityChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    
-    const priorityCounts = {};
-    projects.forEach(project => {
-        const priority = priorityLabels[project.priority];
-        priorityCounts[priority] = (priorityCounts[priority] || 0) + 1;
-    });
-    
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(priorityCounts),
-            datasets: [{
-                label: 'Número de Projetos',
-                data: Object.values(priorityCounts),
-                backgroundColor: [
-                    '#3b82f6',
-                    '#f59e0b',
-                    '#f97316',
-                    '#ef4444'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+    // Use the new updatePriorityChart function
+    updatePriorityChart();
 }
 
 // Helper functions
@@ -3440,72 +3707,6 @@ function renderTimelineChart() {
     const canvas = document.getElementById('timelineChart');
     if (!canvas) return;
     
-    const ctx = canvas.getContext('2d');
-    
-    // Generate monthly data for the last 6 months
-    const months = [];
-    const completedData = [];
-    const startedData = [];
-    
-    for (let i = 5; i >= 0; i--) {
-        const date = new Date();
-        date.setMonth(date.getMonth() - i);
-        months.push(date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
-        
-        // Simulate data based on current projects
-        const monthCompletions = Math.floor(Math.random() * 5) + 1;
-        const monthStarts = Math.floor(Math.random() * 4) + 1;
-        
-        completedData.push(monthCompletions);
-        startedData.push(monthStarts);
-    }
-    
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: months,
-            datasets: [{
-                label: 'Projetos Concluídos',
-                data: completedData,
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                fill: true,
-                tension: 0.4
-            }, {
-                label: 'Projetos Iniciados',
-                data: startedData,
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
-            }
-        }
-    });
-}
-
-function renderHoursDistributionChart() {
-    const canvas = document.getElementById('hoursChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    
     // Calculate hours by project type
     const hoursData = {
         'Sistemas': timeEntries.filter(e => projects.find(p => p.id === e.projectId && p.type === 'Sistemas')).reduce((sum, e) => sum + e.hours, 0),
@@ -4973,3 +5174,444 @@ function testArchivedSystem() {
     
     renderArchivedProjects();
 }
+
+// Chart Customization System
+let chartInstances = {};
+let chartSettings = {
+    colorSchemes: {
+        default: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'],
+        vibrant: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#fd79a8'],
+        professional: ['#2c3e50', '#34495e', '#7f8c8d', '#95a5a6', '#bdc3c7', '#ecf0f1'],
+        nature: ['#27ae60', '#2ecc71', '#16a085', '#1abc9c', '#f39c12', '#e67e22'],
+        sunset: ['#ff7675', '#fd79a8', '#fdcb6e', '#e17055', '#74b9ff', '#0984e3']
+    },
+    animations: {
+        enabled: true,
+        duration: 1000,
+        easing: 'easeOutQuart'
+    },
+    currentScheme: 'default'
+};
+
+// Load chart settings from localStorage
+function loadChartSettings() {
+    const saved = localStorage.getItem('chartSettings');
+    if (saved) {
+        chartSettings = { ...chartSettings, ...JSON.parse(saved) };
+    }
+}
+
+// Save chart settings to localStorage
+function saveChartSettings() {
+    localStorage.setItem('chartSettings', JSON.stringify(chartSettings));
+}
+
+// Open chart customizer modal
+function openChartCustomizer() {
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content chart-customizer-modal">
+            <div class="modal-header customizer-header">
+                <div class="header-content">
+                    <div class="header-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <div class="header-text">
+                        <h2>Personalizar Gráficos</h2>
+                        <p>Customize a aparência e comportamento dos gráficos nos relatórios</p>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            
+            <div class="customizer-content">
+                <div class="customizer-section">
+                    <h4><i class="fas fa-palette"></i> Esquemas de Cores</h4>
+                    <div class="color-scheme-grid" id="colorSchemeGrid">
+                        ${Object.entries(chartSettings.colorSchemes).map(([key, colors]) => `
+                            <div class="color-scheme ${key === chartSettings.currentScheme ? 'selected' : ''}" 
+                                 data-scheme="${key}" onclick="selectColorScheme('${key}')">
+                                <div class="color-palette">
+                                    ${colors.slice(0, 6).map(color => `
+                                        <div class="color-dot" style="background-color: ${color}"></div>
+                                    `).join('')}
+                                </div>
+                                <div class="scheme-name">${getSchemeDisplayName(key)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="customizer-section">
+                    <h4><i class="fas fa-play"></i> Animações</h4>
+                    <div class="animation-options">
+                        <div class="animation-option">
+                            <input type="checkbox" id="enableAnimations" 
+                                   ${chartSettings.animations.enabled ? 'checked' : ''}
+                                   onchange="toggleAnimations(this.checked)">
+                            <label for="enableAnimations">Ativar Animações</label>
+                        </div>
+                        <div class="animation-option">
+                            <label for="animationDuration">Duração (ms):</label>
+                            <input type="range" id="animationDuration" min="500" max="3000" step="100"
+                                   value="${chartSettings.animations.duration}"
+                                   onchange="updateAnimationDuration(this.value)">
+                            <span id="durationValue">${chartSettings.animations.duration}ms</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="customizer-section">
+                    <h4><i class="fas fa-chart-bar"></i> Tipos de Gráfico Padrão</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Projetos por Tipo:</label>
+                            <select id="defaultTypeChart" class="form-control">
+                                <option value="bar">Barras</option>
+                                <option value="doughnut">Rosca</option>
+                                <option value="pie">Pizza</option>
+                                <option value="polarArea">Área Polar</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Projetos por Prioridade:</label>
+                            <select id="defaultPriorityChart" class="form-control">
+                                <option value="polarArea">Área Polar</option>
+                                <option value="doughnut">Rosca</option>
+                                <option value="pie">Pizza</option>
+                                <option value="bar">Barras</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="resetChartSettings()">
+                    <i class="fas fa-undo"></i>
+                    Restaurar Padrão
+                </button>
+                <button class="btn btn-primary" onclick="applyChartSettings()">
+                    <i class="fas fa-check"></i>
+                    Aplicar Configurações
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Get display name for color scheme
+function getSchemeDisplayName(key) {
+    const names = {
+        default: 'Padrão',
+        vibrant: 'Vibrante',
+        professional: 'Profissional',
+        nature: 'Natureza',
+        sunset: 'Pôr do Sol'
+    };
+    return names[key] || key;
+}
+
+// Select color scheme
+function selectColorScheme(scheme) {
+    const grid = document.getElementById('colorSchemeGrid');
+    grid.querySelectorAll('.color-scheme').forEach(el => el.classList.remove('selected'));
+    grid.querySelector(`[data-scheme="${scheme}"]`).classList.add('selected');
+    chartSettings.currentScheme = scheme;
+}
+
+// Toggle animations
+function toggleAnimations(enabled) {
+    chartSettings.animations.enabled = enabled;
+}
+
+// Update animation duration
+function updateAnimationDuration(duration) {
+    chartSettings.animations.duration = parseInt(duration);
+    document.getElementById('durationValue').textContent = duration + 'ms';
+}
+
+// Apply chart settings
+function applyChartSettings() {
+    saveChartSettings();
+    
+    // Update all charts with new settings
+    updateTypeChart();
+    updatePriorityChart();
+    updateStatusChart();
+    updateHoursChart();
+    
+    // Close modal
+    document.querySelector('.chart-customizer-modal').closest('.modal').remove();
+    
+    showNotification('Configurações dos gráficos aplicadas com sucesso!', 'success');
+}
+
+// Reset chart settings
+function resetChartSettings() {
+    chartSettings = {
+        colorSchemes: chartSettings.colorSchemes,
+        animations: { enabled: true, duration: 1000, easing: 'easeOutQuart' },
+        currentScheme: 'default'
+    };
+    
+    saveChartSettings();
+    applyChartSettings();
+    
+    showNotification('Configurações restauradas para o padrão', 'success');
+}
+
+// Enhanced chart rendering functions
+function updateTypeChart() {
+    const canvas = document.getElementById('projectTypeChart');
+    if (!canvas) return;
+    
+    // Destroy existing chart
+    if (chartInstances.typeChart) {
+        chartInstances.typeChart.destroy();
+    }
+    
+    const ctx = canvas.getContext('2d');
+    const chartType = document.getElementById('typeChartType')?.value || 'bar';
+    
+    // Get type counts from all project types
+    const typeCounts = {};
+    projectTypes.forEach(type => {
+        typeCounts[type.name] = projects.filter(p => p.type === type.id || p.type === type.name).length;
+    });
+    
+    const colors = chartSettings.colorSchemes[chartSettings.currentScheme];
+    
+    chartInstances.typeChart = new Chart(ctx, {
+        type: chartType,
+        data: {
+            labels: Object.keys(typeCounts),
+            datasets: [{
+                data: Object.values(typeCounts),
+                backgroundColor: colors,
+                borderWidth: chartType === 'bar' ? 0 : 2,
+                borderColor: chartType !== 'bar' ? '#fff' : undefined,
+                borderRadius: chartType === 'bar' ? 8 : undefined,
+                cutout: chartType === 'doughnut' ? '70%' : undefined
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: chartSettings.animations.enabled ? chartSettings.animations.duration : 0,
+                easing: chartSettings.animations.easing
+            },
+            plugins: {
+                legend: {
+                    display: chartType !== 'bar',
+                    position: 'bottom'
+                }
+            },
+            scales: chartType === 'bar' ? {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            } : undefined
+        }
+    });
+}
+
+function updatePriorityChart() {
+    const canvas = document.getElementById('priorityChart');
+    if (!canvas) return;
+    
+    if (chartInstances.priorityChart) {
+        chartInstances.priorityChart.destroy();
+    }
+    
+    const ctx = canvas.getContext('2d');
+    const chartType = document.getElementById('priorityChartType')?.value || 'polarArea';
+    
+    const priorityCounts = {
+        'Baixa': projects.filter(p => p.priority === 'low').length,
+        'Média': projects.filter(p => p.priority === 'medium').length,
+        'Alta': projects.filter(p => p.priority === 'high').length,
+        'Crítica': projects.filter(p => p.priority === 'critical').length
+    };
+    
+    const colors = chartSettings.colorSchemes[chartSettings.currentScheme];
+    
+    chartInstances.priorityChart = new Chart(ctx, {
+        type: chartType,
+        data: {
+            labels: Object.keys(priorityCounts),
+            datasets: [{
+                data: Object.values(priorityCounts),
+                backgroundColor: colors,
+                borderWidth: chartType === 'bar' ? 0 : 2,
+                borderColor: chartType !== 'bar' ? '#fff' : undefined,
+                borderRadius: chartType === 'bar' ? 8 : undefined,
+                cutout: chartType === 'doughnut' ? '70%' : undefined
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: chartSettings.animations.enabled ? chartSettings.animations.duration : 0,
+                easing: chartSettings.animations.easing
+            },
+            plugins: {
+                legend: {
+                    display: chartType !== 'bar',
+                    position: 'bottom'
+                }
+            },
+            scales: chartType === 'bar' ? {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            } : undefined
+        }
+    });
+}
+
+function updateStatusChart() {
+    const canvas = document.getElementById('statusChart');
+    if (!canvas) return;
+    
+    if (chartInstances.statusChart) {
+        chartInstances.statusChart.destroy();
+    }
+    
+    const ctx = canvas.getContext('2d');
+    const chartType = document.getElementById('statusChartType')?.value || 'doughnut';
+    
+    const statusCounts = {
+        'A Fazer': projects.filter(p => p.status === 'todo').length,
+        'Em Andamento': projects.filter(p => p.status === 'in_progress').length,
+        'Concluído': projects.filter(p => p.status === 'completed').length
+    };
+    
+    const colors = chartSettings.colorSchemes[chartSettings.currentScheme].slice(0, 3);
+    
+    chartInstances.statusChart = new Chart(ctx, {
+        type: chartType,
+        data: {
+            labels: Object.keys(statusCounts),
+            datasets: [{
+                data: Object.values(statusCounts),
+                backgroundColor: colors,
+                borderWidth: chartType === 'bar' ? 0 : 2,
+                borderColor: chartType !== 'bar' ? '#fff' : undefined,
+                borderRadius: chartType === 'bar' ? 8 : undefined,
+                cutout: chartType === 'doughnut' ? '70%' : undefined
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: chartSettings.animations.enabled ? chartSettings.animations.duration : 0,
+                easing: chartSettings.animations.easing
+            },
+            plugins: {
+                legend: {
+                    display: chartType !== 'bar',
+                    position: 'bottom'
+                }
+            },
+            scales: chartType === 'bar' ? {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            } : undefined
+        }
+    });
+}
+
+function updateHoursChart() {
+    const canvas = document.getElementById('hoursChart');
+    if (!canvas) return;
+    
+    if (chartInstances.hoursChart) {
+        chartInstances.hoursChart.destroy();
+    }
+    
+    const ctx = canvas.getContext('2d');
+    const chartType = document.getElementById('hoursChartType')?.value || 'bar';
+    
+    // Get hours by project type
+    const hoursData = {};
+    projectTypes.forEach(type => {
+        const typeProjects = projects.filter(p => p.type === type.id || p.type === type.name);
+        hoursData[type.name] = typeProjects.reduce((sum, p) => sum + (p.totalHours || 0), 0);
+    });
+    
+    const colors = chartSettings.colorSchemes[chartSettings.currentScheme];
+    
+    chartInstances.hoursChart = new Chart(ctx, {
+        type: chartType,
+        data: {
+            labels: Object.keys(hoursData),
+            datasets: [{
+                label: 'Horas Trabalhadas',
+                data: Object.values(hoursData),
+                backgroundColor: colors,
+                borderColor: colors,
+                borderWidth: chartType === 'line' ? 3 : 0,
+                fill: chartType === 'line' ? false : true,
+                borderRadius: chartType === 'bar' ? 8 : undefined
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: chartSettings.animations.enabled ? chartSettings.animations.duration : 0,
+                easing: chartSettings.animations.easing
+            },
+            plugins: {
+                legend: {
+                    display: chartType === 'line',
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Initialize system when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSystem();
+    loadChartSettings();
+    loadSampleData();
+    initializeNavigation();
+    initializeModalHandlers();
+    initializeFormHandlers();
+    initializeDragAndDrop();
+    renderDashboard();
+    populateProjectSelects();
+    
+    // Apply chart settings when reports page is shown
+    const reportsNav = document.querySelector('nav li[onclick="showPage(\'reports\')"]');
+    if (reportsNav) {
+        const originalClick = reportsNav.onclick;
+        reportsNav.onclick = function() {
+            originalClick.call(this);
+            setTimeout(() => {
+                updateTypeChart();
+                updatePriorityChart();
+                updateStatusChart();
+                updateHoursChart();
+            }, 100);
+        };
+    }
+});

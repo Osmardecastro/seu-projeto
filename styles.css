@@ -557,8 +557,31 @@ body {
     backdrop-filter: blur(8px);
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 10000;
     padding: 2rem;
+}
+
+/* Specific high z-index for time entry modal */
+#timeEntryModal {
+    z-index: 10001 !important;
+}
+
+#timeEntryModal .modal-content {
+    z-index: 10002 !important;
+    position: relative;
+}
+
+/* Ensure time entry modal header and buttons are also on top */
+#timeEntryModal .modal-header,
+#timeEntryModal .form-actions,
+#timeEntryModal .close-btn {
+    z-index: 10003 !important;
+    position: relative;
+}
+
+/* Additional modal overlay styles to ensure proper layering */
+.modal.show {
+    z-index: inherit !important;
 }
 
 .modal.show {
@@ -1051,9 +1074,15 @@ body {
 /* Enhanced Reports Grid */
 .reports-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
     margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .reports-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Animation for archived projects */
@@ -4108,5 +4137,638 @@ canvas {
     
     .task-card-content {
         padding: 1rem;
+    }
+}
+
+
+/* Enhanced Checkbox Styles for Project Modal */
+.checkbox-enhanced {
+    grid-column: 1 / -1;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 1rem;
+    background: rgba(59, 130, 246, 0.05);
+    border: 2px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.checkbox-label:hover {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.modern-checkbox {
+    display: none;
+}
+
+.checkmark {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.modern-checkbox:checked + .checkmark {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+}
+
+.modern-checkbox:checked + .checkmark i {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.checkmark i {
+    font-size: 0.75rem;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.2s ease;
+}
+
+.checkbox-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.checkbox-text i {
+    color: #6b7280;
+}
+
+
+/* Project Types Manager Modal */
+.types-modal {
+    max-width: 600px;
+    width: 90%;
+}
+
+.types-manager {
+    padding: 1.5rem;
+}
+
+.types-manager h3 {
+    margin: 0 0 2rem 0;
+    color: var(--gray-800);
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.types-section {
+    margin-bottom: 2rem;
+}
+
+.types-section h4 {
+    margin: 0 0 1rem 0;
+    color: var(--gray-700);
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.types-section h4::before {
+    content: '📁';
+    font-size: 1rem;
+}
+
+.types-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.type-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.type-item.default {
+    background: rgba(59, 130, 246, 0.05);
+    border-color: rgba(59, 130, 246, 0.2);
+}
+
+.type-item.custom {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.type-item i {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--primary-600);
+}
+
+.type-item span {
+    flex: 1;
+    font-weight: 500;
+    color: var(--gray-800);
+}
+
+.type-badge {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary-600);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.btn-remove {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error-600);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    padding: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-remove:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.3);
+    transform: scale(1.05);
+}
+
+.no-custom-types {
+    text-align: center;
+    color: var(--gray-500);
+    font-style: italic;
+    padding: 2rem;
+    background: var(--gray-50);
+    border: 1px dashed var(--gray-300);
+    border-radius: 8px;
+}
+
+/* Types Manager Button */
+.types-manager-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
+
+.types-manager-btn:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Add Type Modal Styles */
+.add-type-modal {
+    max-width: 650px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.add-type-header {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    padding: 2rem;
+    border-radius: 16px 16px 0 0;
+}
+
+.add-type-header .header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.add-type-header .header-icon {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 4rem;
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.add-type-header .header-text h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.add-type-header .header-text p {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+    font-size: 1rem;
+}
+
+.add-type-content {
+    padding: 2rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.form-label i {
+    color: var(--primary-500);
+}
+
+.form-input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-400);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-help {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--gray-500);
+    font-size: 0.875rem;
+    font-style: italic;
+}
+
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.icon-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+    text-align: center;
+}
+
+.icon-option:hover {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.icon-option.selected {
+    border-color: var(--primary-500);
+    background: var(--primary-100);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.icon-option i {
+    font-size: 1.5rem;
+    color: var(--icon-color, var(--primary-500));
+    transition: all 0.2s ease;
+}
+
+.icon-option span {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--gray-600);
+    line-height: 1.2;
+}
+
+.icon-option.selected span {
+    color: var(--primary-700);
+    font-weight: 600;
+}
+
+.preview-section {
+    background: var(--gray-50);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--gray-200);
+}
+
+.type-preview {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    font-weight: 500;
+    color: var(--gray-800);
+}
+
+.type-preview i {
+    font-size: 1.25rem;
+    width: 24px;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .add-type-modal {
+        margin: 1rem;
+        max-height: 85vh;
+    }
+    
+    .add-type-header {
+        padding: 1.5rem;
+    }
+    
+    .add-type-header .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .add-type-header .header-icon {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.25rem;
+    }
+    
+    .add-type-content {
+        padding: 1.5rem;
+    }
+    
+    .icon-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.75rem;
+    }
+    
+    .icon-option {
+        padding: 1rem;
+    }
+}
+
+/* Chart Customization Styles */
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--gray-200);
+}
+
+.chart-header h3 {
+    margin: 0;
+    color: var(--gray-800);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chart-control {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 6px;
+    background: white;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chart-control:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.chart-control:hover {
+    border-color: var(--primary-400);
+}
+
+/* Chart Customizer Modal */
+.chart-customizer-modal {
+    max-width: 800px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.customizer-header {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    color: white;
+    padding: 2rem;
+    border-radius: 16px 16px 0 0;
+}
+
+.customizer-content {
+    padding: 2rem;
+}
+
+.customizer-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    background: var(--gray-50);
+}
+
+.customizer-section h4 {
+    margin: 0 0 1.5rem 0;
+    color: var(--gray-800);
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.color-scheme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.color-scheme {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    border: 2px solid var(--gray-300);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.color-scheme:hover {
+    border-color: var(--primary-400);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.color-scheme.selected {
+    border-color: var(--primary-500);
+    background: var(--primary-50);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.color-palette {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.color-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.scheme-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-700);
+    text-align: center;
+}
+
+.animation-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.animation-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.animation-option:hover {
+    border-color: var(--primary-400);
+    background: var(--primary-50);
+}
+
+.animation-option input[type="checkbox"] {
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .chart-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .chart-controls {
+        width: 100%;
+        justify-content: stretch;
+    }
+    
+    .chart-control {
+        flex: 1;
+    }
+    
+    .customizer-content {
+        padding: 1.5rem;
+    }
+    
+    .color-scheme-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+
+/* Fix for chart layout and positioning */
+.chart-container {
+    position: relative !important;
+    height: 400px !important;
+    width: 100% !important;
+    overflow: hidden;
+}
+
+.chart-container canvas {
+    position: relative !important;
+    max-height: 320px !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+}
+
+/* Ensure proper grid layout for reports */
+#reports .reports-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 2rem !important;
+    width: 100% !important;
+}
+
+@media (max-width: 768px) {
+    #reports .reports-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .chart-container {
+        height: 350px !important;
     }
 }
